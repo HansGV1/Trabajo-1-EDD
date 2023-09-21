@@ -26,14 +26,22 @@ from tkinter import Tk, Frame, Canvas, Button, Label
 
 # Manzana
 import random
-poscuadros =  [15, 45, 75,105,135,165, 195, 225, 255, 
-    285, 315, 345, 375] 
+poscuadros =  [24, 72, 120, 168, 216, 264, 312, 360, 408, 456, 504, 552, 600] 
 manzana = "⬛"
-def posmanzana():
-    cordxmanzana = random.choice(poscuadros)
-    cordymanzana = random.choice(poscuadros)
-    cords = (cordxmanzana, cordymanzana)
-    #definir posicion serpiente
+
+def movimiento():
+        cordxmanzana = random.choice(poscuadros)
+        cordymanzana = random.choice(poscuadros)
+        cords = (cordxmanzana, cordymanzana)
+        numsal = random.randint(1, 10)
+        cv.coords(cv.find_withtag('manzana'), cords)
+            #if cords == pos_serpiente[0] 
+                #if contador movimientos  == numsal
+                #cv.coords(cv.find_withtag('manzana'), cords)
+        #definir contador de movimientos
+        #definir posicion serpiente
+
+
 
 #interfaz
 interfaz = Tk()
@@ -59,14 +67,14 @@ for i in range(0,624,48):
     for j in range(0,624,48):
         cv.create_rectangle(i,j,i+48, j+48, fill='grey')
 
-#canvas.create_text(75,75, text='🍎', fill='red2', font = ('Arial',18), tag = 'food')
+cv.create_text(75,75, text="⬛", fill='red2', font = ('Arial',18), tag = 'manzana')
 
 # se crea el boton de salir, y se pone en el frame f1
 button1 = Button(f1, text='Salir', bg='blue') #, command = salir)
 button1.grid(row=0, column=0, padx=20)
 
 # se crea el boton de iniciar, y se pone en el frame f1
-button2 = Button(f1, text='Iniciar', bg='orange') #, command = movimiento)
+button2 = Button(f1, text='Iniciar', bg='orange', command = movimiento)
 button2.grid(row=0, column=1, padx=20)
 
 # se crea el boton de pausa, y se pone en el frame f1 (opcional)
