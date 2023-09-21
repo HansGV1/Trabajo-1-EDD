@@ -65,11 +65,13 @@ def direccion(event):
     elif event == 'down':
         if direction != 'up':
             direction = event
+            
 def movimiento():
     global posicion_food, posicion_snake,nueva_posicion
     posiciones = [15, 45, 75,105,135,165, 195, 225, 255, 
     285, 315, 345, 375, 405, 435, 465] 
     coordenadas_snake()
+    
     if posicion_food == posicion_snake[0]:
         n = len(posicion_snake)
         cantidad['text'] = 'Cantidad 🍎 : {}'.format(n)
