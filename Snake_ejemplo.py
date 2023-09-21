@@ -124,6 +124,7 @@ ventana.bind("<KeyPress-Up>", lambda event:direccion('up'))
 ventana.bind("<KeyPress-Down>", lambda event:direccion('down'))
 ventana.bind("<KeyPress-Left>", lambda event:direccion('left'))
 ventana.bind("<KeyPress-Right>",  lambda event:direccion('right'))
+
 canvas = Canvas(frame_2, bg='black', width=479, height=479)
 canvas.pack()
 
