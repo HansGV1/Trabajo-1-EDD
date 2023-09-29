@@ -122,62 +122,91 @@ class Turno:
 def siguienteTurno(snake, food):
     global score
 
-    if Turno.turno > 0:
-        x, y = snake.posicion[0]
+    if not is_paused:
+        if Turno.turno > 0:
+            x, y = snake.posicion[0]
 
-        if direccion == "up":
-            y -= 25
-            if Turno.aparicion != 0:
-                Turno.movimientos += 1
-        elif direccion == "down":
-            y += 25
-            if Turno.aparicion != 0:
-                Turno.movimientos += 1
-        elif direccion == "left":
-            x -= 25
-            if Turno.aparicion != 0:
-                Turno.movimientos += 1
-        elif direccion == "right":
-            x += 25
-            if Turno.aparicion != 0:
-                Turno.movimientos += 1
-                
-        if Turno.movimientos == Turno.aparicion and Turno.manzana == 0:
-                food = Manzana()
-                Turno.movimientos = 0
-                Turno.aparicion = 0
-                Turno.manzana = 1
+            if direccion == "up":
+                y -= 25
+                if Turno.aparicion != 0:
+                    Turno.movimientos += 1
+            elif direccion == "down":
+                y += 25
+                if Turno.aparicion != 0:
+                    Turno.movimientos += 1
+            elif direccion == "left":
+                x -= 25
+                if Turno.aparicion != 0:
+                    Turno.movimientos += 1
+            elif direccion == "right":
+                x += 25
+                if Turno.aparicion != 0:
+                    Turno.movimientos += 1
+                    
+            if Turno.movimientos == Turno.aparicion and Turno.manzana == 0:
+                    food = Manzana()
+                    Turno.movimientos = 0
+                    Turno.aparicion = 0
+                    Turno.manzana = 1
+            
+            snake.posicion.appendleft([x, y])
+            square = cv.create_rectangle(x, y, x + 25, y + 25, fill="#808080")
+            snake.squares.appendleft(square)
+            cv.delete(snake.squares[1])
+            snake.squares[1] = cv.create_rectangle(
+                snake.posicion[1][0], snake.posicion[1][1],
+                snake.posicion[1][0] + 25, snake.posicion[1][1] + 25, fill="#bfbfbf")
+            
+            if x == food.cords[0] and y == food.cords[1]:
+                global score
+                score += 1
+                cantidad4.config(text="{}".format(score))
+                if food:
+                    food.remove()
+                Turno.aparicion = random.randint(1, 10)
+                Turno.manzana = 0
+                    
+                snake.body_size += 1
+                if len(snake.posicion) < snake.body_size:
+                    snake.posicion.append([x, y])
+            else:
+                snake.posicion.pop()
+                cv.delete(snake.squares.pop())  
+                 
         
-        snake.posicion.appendleft([x, y])
-        square = cv.create_rectangle(x, y, x + 25, y + 25, fill="#808080")
-        snake.squares.appendleft(square)
-        cv.delete(snake.squares[1])
-        snake.squares[1] = cv.create_rectangle(
-            snake.posicion[1][0], snake.posicion[1][1],
-            snake.posicion[1][0] + 25, snake.posicion[1][1] + 25, fill="#bfbfbf")
-        
-        if x == food.cords[0] and y == food.cords[1]:
-            global score
-            score += 1
-            cantidad4.config(text="{}".format(score))
-            if food:
-                food.remove()
-            Turno.aparicion = random.randint(1, 10)
-            Turno.manzana = 0
-                
-            snake.body_size += 1
-            if len(snake.posicion) < snake.body_size:
-                snake.posicion.append([x, y])
+        if Colision(snake):
+            game_over()
         else:
-            snake.posicion.pop()
-            cv.delete(snake.squares.pop())  
-                
-    Turno.turno = 1
-    interfaz.after(100, siguienteTurno, snake, food)
-    
+            Turno.turno = 1
+            interfaz.after(100, siguienteTurno, snake, food)
+        
             
 food_instance = None
            
+#Muerte serpiente         
+def Colision(snake):
+    if not snake:
+        return False
+
+    x, y = snake.posicion[0]
+
+    if x < 0 or x >= 325:
+        return True
+    elif y < 0 or y >= 325:
+        return True
+
+    for i in range(1, len(snake.posicion)):
+        body_part = snake.posicion[i]
+        if x == body_part[0] and y == body_part[1]:
+            return True
+
+    return False
+
+#Terminar juego
+def game_over(): 
+    cv.delete(ALL)
+    cv.create_text(163, 150, font=('consolas', 30), text="Has chocado\n\nGame over", fill="red", tag="gameover", justify = ['center'])
+
 # Iniciar programa
 def iniciar_programa():
     if len(Serpiente.instances) == 0 and len(Manzana.instances) == 0:
