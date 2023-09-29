@@ -25,8 +25,9 @@ class Serpiente:
 
     def __init__(self):
         self.body_size = 3
-        self.posicion = deque()
-        self.squares = deque()
+        self.posicion = deque() # Posicion de cada uno de las partes de la serpiente Cabeza + Cuerpo [[x1,y1],[x2,y2],[x3,y3],...]
+        self.squares = deque() # Posicion de cada uno de las partes de la serpiente Cabeza + Cuerpo EN EL CANVAS, es decir
+                             #   de manera grafíca [[x1,y1],[x2,y2],[x3,y3],...]
 
         Serpiente.instances.append(self)
 
@@ -122,63 +123,62 @@ class Turno:
 def siguienteTurno(snake, food):
     global score
 
-    if not is_paused:
-        if Turno.turno > 0:
-            x, y = snake.posicion[0]
+    if Turno.turno > 0:
+        x, y = snake.posicion[0]
 
-            if direccion == "up":
-                y -= 25
-                if Turno.aparicion != 0:
-                    Turno.movimientos += 1
-            elif direccion == "down":
-                y += 25
-                if Turno.aparicion != 0:
-                    Turno.movimientos += 1
-            elif direccion == "left":
-                x -= 25
-                if Turno.aparicion != 0:
-                    Turno.movimientos += 1
-            elif direccion == "right":
-                x += 25
-                if Turno.aparicion != 0:
-                    Turno.movimientos += 1
-                    
-            if Turno.movimientos == Turno.aparicion and Turno.manzana == 0:
-                    food = Manzana()
-                    Turno.movimientos = 0
-                    Turno.aparicion = 0
-                    Turno.manzana = 1
-            
-            snake.posicion.appendleft([x, y])
-            square = cv.create_rectangle(x, y, x + 25, y + 25, fill="#808080")
-            snake.squares.appendleft(square)
-            cv.delete(snake.squares[1])
-            snake.squares[1] = cv.create_rectangle(
-                snake.posicion[1][0], snake.posicion[1][1],
-                snake.posicion[1][0] + 25, snake.posicion[1][1] + 25, fill="#bfbfbf")
-            
-            if x == food.cords[0] and y == food.cords[1]:
-                global score
-                score += 1
-                cantidad4.config(text="{}".format(score))
-                if food:
-                    food.remove()
-                Turno.aparicion = random.randint(1, 10)
-                Turno.manzana = 0
-                    
-                snake.body_size += 1
-                if len(snake.posicion) < snake.body_size:
-                    snake.posicion.append([x, y])
-            else:
-                snake.posicion.pop()
-                cv.delete(snake.squares.pop())  
-                 
+        if direccion == "up":
+            y -= 25
+            if Turno.aparicion != 0:
+                Turno.movimientos += 1
+        elif direccion == "down":
+            y += 25
+            if Turno.aparicion != 0:
+                Turno.movimientos += 1
+        elif direccion == "left":
+            x -= 25
+            if Turno.aparicion != 0:
+                Turno.movimientos += 1
+        elif direccion == "right":
+            x += 25
+            if Turno.aparicion != 0:
+                Turno.movimientos += 1
+                
+        if Turno.movimientos == Turno.aparicion and Turno.manzana == 0:
+                food = Manzana()
+                Turno.movimientos = 0
+                Turno.aparicion = 0
+                Turno.manzana = 1
         
-        if Colision(snake):
-            game_over()
-        else:
-            Turno.turno = 1
-            interfaz.after(100, siguienteTurno, snake, food)
+        snake.posicion.appendleft([x, y])
+        square = cv.create_rectangle(x, y, x + 25, y + 25, fill="#808080")
+        snake.squares.appendleft(square)
+        cv.delete(snake.squares[1])
+        snake.squares[1] = cv.create_rectangle(
+            snake.posicion[1][0], snake.posicion[1][1],
+            snake.posicion[1][0] + 25, snake.posicion[1][1] + 25, fill="#bfbfbf")
+        
+        # La serpiente se come una manzana 
+        if x == food.cords[0] and y == food.cords[1]:
+            global score
+            score += 1
+            cantidad4.config(text="{}".format(score))
+            if food:
+                food.remove()
+            Turno.aparicion = random.randint(1, 10)
+            Turno.manzana = 0
+                
+            snake.body_size += 1
+            if len(snake.posicion) < snake.body_size:
+                snake.posicion.append([x, y])
+        else: # Actualización de las partes del cuerpo de la serpiente cuando se mueve
+            snake.posicion.pop()
+            cv.delete(snake.squares.pop())  
+                
+    if Colision(snake):
+        game_over()
+    else:
+        Turno.turno = 1
+        interfaz.after(100, siguienteTurno, snake, food)
         
             
 food_instance = None
@@ -217,16 +217,6 @@ def iniciar_programa():
         food = Manzana()
         siguienteTurno(snake, food)
 
-# Pausar programa
-def pausar_programa():
-    global is_paused
-    is_paused = not is_paused
-    if not is_paused:
-        snake = Serpiente.instances[0]  
-        food = Manzana.instances[0]  
-        siguienteTurno(snake, food)
-
-
 #Reiniciar programa
 def reiniciar_programa():
     python = sys.executable
@@ -242,7 +232,6 @@ interfaz.resizable(width=False, height=False)
 
 score = 0
 direccion = 'up'
-is_paused = False
 
 # se crea el frame para los botones, y la info del juego
 f1 = Frame(interfaz, width=325, height=14, bg='grey')
@@ -264,10 +253,6 @@ for i in range(0,325,25):
 # se crea el boton de iniciar, y se pone en el frame f1
 button1 = Button(f1, text='Iniciar', bg='orange', command = iniciar_programa, width=5, height=1)
 button1.grid(row=0, column=0, padx=7)
-
-# se crea el boton de pausa, y se pone en el frame f1 (opcional)
-button2 = Button(f1, text='Pausar', bg='green', command = pausar_programa, width=5, height=1)
-button2.grid(row=0, column=1, padx=7)
 
 # Botón de reinicio
 
